@@ -9,6 +9,8 @@ function Board(){
   this.img = new Image();
   this.img.src = "http://ellisonleao.github.io/clumsy-bird/data/img/bg.png"
   this.score = 0;
+  this.music = new Audio()
+  this.music.src = 'assets/09 - koopa park.mp3'
 
 
   this.img.onload = function(){
@@ -24,6 +26,9 @@ function Board(){
     this.move()
     ctx.drawImage(this.img, this.x, this.y, this.width, this.height)
     ctx.drawImage(this.img,this.x + this.width, this.y, this.width, this.height)
+  }
+
+  this.drawScore = function(){
     ctx.font = '50px sans-serif'
     ctx.fillStyle = 'white'
     ctx.fillText(this.score,this.width/2 - 15,this.y + 50)
@@ -50,20 +55,57 @@ function Flappy(){
   }
 }
 
+function Pipe(y, height){
+  this.x = canvas.width;
+  this.y = y;
+  this.width = 50;
+  this.height = height;
+  // this.pipe = new Image()
+  // this.pipe.src = 'assets/pipe.png'
+  this.draw = function(){
+    this.x--
+    ctx.fillStyle = 'green'
+    ctx.fillRect(this.x, this.y, this.width, this.height);
+  }
+  
+}
+
 var board = new Board;
 var flappy = new Flappy;
+var pipes = [];
 var interval;
 var frames = 0;
 
+function generatePipes(){
+  if(!(frames % 200 === 0)) return
+  var ventanita = 100;
+  var randomHeight = Math.floor(Math.random() * 200) + 50;
+  var pipe = new Pipe(0, randomHeight)
+  var pipe2 = new Pipe(randomHeight + ventanita, canvas.height - (randomHeight + ventanita))
+  pipes.push(pipe);
+  pipes.push(pipe2);
+}
+
+function drawPipes(){
+  pipes.forEach(function(pipe){    
+    pipe.draw();
+    console.log('draw pipe', pipe.y)
+  })
+}
+
 function update(){
-  console.log(frames)
+  generatePipes()
+  //console.log(frames)
   frames++
   ctx.clearRect(0,0,canvas.width,canvas.height)
   board.draw()
   flappy.draw()
+  drawPipes()
+  board.drawScore()
 }
 
 function start(){
+  board.music.play()
   if(interval > 0) return;
   interval = setInterval(function(){
     update()
